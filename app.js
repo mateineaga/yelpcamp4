@@ -25,8 +25,8 @@ const MongoStore = require('connect-mongo');
 const userRoutes = require('./routes/users')
 const campgroundRoutes = require('./routes/campgrounds')  //routing din folderul routes
 const reviewRoutes = require('./routes/reviews')  //routing
-const dbUrl = process.env.NODE_ENV;
-// 
+const dbUrl = process.env.DB_URL || 'mongodb://127.0.0.1:27017/yelp-camp';
+
 mongoose.connect(dbUrl) //comanda universala de conectare a mongoose
     .then(() => {
         console.log('connetion database open')
@@ -44,18 +44,18 @@ app.use(express.urlencoded({ extended: true }))  //pt ca req.body se da submit c
 app.use(methodOverride('_method')); //activate method override
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(mongoSanitize());
-
+const secret = process.env.SECRET || 'secret';
 const store = MongoStore.create({   //setup pentru session store, unde se stocheaza sesiunea
     mongoUrl: dbUrl,
     touchAfter: 24 * 60 * 60,
     crypto: {
-        secret: 'secret'
+        secret: secret
     }
 });
 
 const sessionConfig = {    //declararea parametrilor sesiunii
     store,
-    secret: 'secret',
+    secret: secret,
     resave: false,
     saveUninitialized: true,
     cookie: {
